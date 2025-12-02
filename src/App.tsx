@@ -1,50 +1,57 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { useState } from 'react';
+import { invoke } from '@tauri-apps/api/core';
+import Layout from './components/Layout';
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [version, setVersion] = useState<string>('');
+  const [greeting, setGreeting] = useState<string>('');
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const checkVersion = async () => {
+    const ver = await invoke<string>('get_app_version');
+    setVersion(ver);
+  };
+
+  const testGreet = async () => {
+    const greet = await invoke<string>('greet', { name: 'DataDustOff User' });
+    setGreeting(greet);
+  };
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+    <Layout>
+      <div className="p-8">
+        <h2 className="text-3xl font-bold mb-4">Welcome to DataDustOff</h2>
+        <p className="text-gray-400 mb-8">
+          Your smart file cleanup tool. Let's find those untouched files!
+        </p>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {/* Test Rust Communication */}
+        <div className="space-y-4">
+          <div>
+            <button
+              onClick={checkVersion}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+            >
+              Check Version (Rust)
+            </button>
+            {version && (
+              <p className="mt-2 text-green-400">Version from Rust: {version}</p>
+            )}
+          </div>
+
+          <div>
+            <button
+              onClick={testGreet}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition"
+            >
+              Test Greet (Rust)
+            </button>
+            {greeting && (
+              <p className="mt-2 text-green-400">{greeting}</p>
+            )}
+          </div>
+        </div>
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+    </Layout>
   );
 }
 
