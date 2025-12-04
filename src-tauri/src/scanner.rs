@@ -20,6 +20,8 @@ pub struct ScanResult {
     pub total_size: u64,
     pub files: Vec<FileInfo>,
     pub scan_path: String,
+    pub limited: bool,  // Whether scan was stopped due to file limit
+    pub max_files: usize,  // The limit that was applied
 }
 
 impl FileInfo {
@@ -74,23 +76,45 @@ pub fn scan_directory(path: &str) -> Result<ScanResult, String> {
 
     let mut files = Vec::new();
     let mut total_size: u64 = 0;
+    let max_files: usize = 50000;  // Limit to 50k files to prevent lag
+    let mut limited = false;
 
-    // Recursively walk the directory
-    walk_directory(scan_path, &mut files, &mut total_size)?;
+    // Recursively walk the directory with file limit
+    walk_directory(scan_path, &mut files, &mut total_size, max_files, &mut limited)?;
 
     Ok(ScanResult {
         total_files: files.len(),
         total_size,
         files,
         scan_path: path.to_string(),
+        limited,
+        max_files,
     })
 }
 
-fn walk_directory(dir: &Path, files: &mut Vec<FileInfo>, total_size: &mut u64) -> Result<(), String> {
+fn walk_directory(
+    dir: &Path, 
+    files: &mut Vec<FileInfo>, 
+    total_size: &mut u64,
+    max_files: usize,
+    limited: &mut bool
+) -> Result<(), String> {
+    // Stop if we've hit the file limit
+    if files.len() >= max_files {
+        *limited = true;
+        return Ok(());
+    }
+
     let entries = fs::read_dir(dir)
         .map_err(|e| format!("Failed to read directory: {}", e))?;
 
     for entry in entries {
+        // Check limit on each iteration
+        if files.len() >= max_files {
+            *limited = true;
+            return Ok(());
+        }
+
         let entry = match entry {
             Ok(e) => e,
             Err(_) => continue, // Skip files we can't access
@@ -106,7 +130,7 @@ fn walk_directory(dir: &Path, files: &mut Vec<FileInfo>, total_size: &mut u64) -
                     files.push(file_info);
                 } else {
                     // Recursively scan subdirectories
-                    let _ = walk_directory(&path, files, total_size);
+                    let _ = walk_directory(&path, files, total_size, max_files, limited);
                 }
             }
             Err(_) => continue, // Skip files we can't read
@@ -162,58 +186,15 @@ pub fn move_file(from: &str, to: &str) -> Result<(), String> {
 
 // Move file to Recycle Bin (Windows)
 pub fn move_to_trash(path: &str) -> Result<(), String> {
-    // For now, we'll use a simple trash folder
-    // Later we can integrate with Windows Recycle Bin API
     let file_path = Path::new(path);
     
     if !file_path.exists() {
         return Err(format!("File does not exist: {}", path));
     }
 
-    // Get user's home directory
-    let home = std::env::var("USERPROFILE")
-        .map_err(|_| "Could not find user profile".to_string())?;
-    
-    let trash_dir = Path::new(&home).join("DataDustOff_Trash");
-    
-    // Create trash directory if it doesn't exist
-    fs::create_dir_all(&trash_dir)
-        .map_err(|e| format!("Failed to create trash directory: {}", e))?;
-
-    // Get just the filename
-    let filename = file_path.file_name()
-        .ok_or("Invalid filename")?;
-    
-    let trash_path = trash_dir.join(filename);
-
-    // If file already exists in trash, add timestamp
-    let final_trash_path = if trash_path.exists() {
-        let timestamp = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        
-        let stem = file_path.file_stem()
-            .and_then(|s| s.to_str())
-            .unwrap_or("file");
-        
-        let extension = file_path.extension()
-            .and_then(|e| e.to_str())
-            .unwrap_or("");
-        
-        let new_name = if extension.is_empty() {
-            format!("{}_{}", stem, timestamp)
-        } else {
-            format!("{}_{}.{}", stem, timestamp, extension)
-        };
-        
-        trash_dir.join(new_name)
-    } else {
-        trash_path
-    };
-
-    fs::rename(file_path, final_trash_path)
-        .map_err(|e| format!("Failed to move to trash: {}", e))?;
+    // Use the trash crate to move file to Windows Recycle Bin
+    trash::delete(file_path)
+        .map_err(|e| format!("Failed to move to recycle bin: {}", e))?;
 
     Ok(())
 }
