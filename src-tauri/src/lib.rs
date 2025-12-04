@@ -1,6 +1,6 @@
 mod scanner;
 
-use scanner::{scan_directory, ScanResult};
+use scanner::{scan_directory, ScanResult, delete_file, move_file, move_to_trash};
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -17,6 +17,21 @@ fn scan_folder(path: String) -> Result<ScanResult, String> {
     scan_directory(&path)
 }
 
+#[tauri::command]
+fn delete_file_cmd(path: String) -> Result<(), String> {
+    delete_file(&path)
+}
+
+#[tauri::command]
+fn move_file_cmd(from: String, to: String) -> Result<(), String> {
+    move_file(&from, &to)
+}
+
+#[tauri::command]
+fn move_to_trash_cmd(path: String) -> Result<(), String> {
+    move_to_trash(&path)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -25,7 +40,10 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             greet, 
             get_app_version,
-            scan_folder
+            scan_folder,
+            delete_file_cmd,
+            move_file_cmd,
+            move_to_trash_cmd
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
