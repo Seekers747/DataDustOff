@@ -19,8 +19,7 @@ A smart desktop file cleanup tool that helps you find and remove files you haven
 
 **Download the latest release from [GitHub Releases](https://github.com/Seekers747/DataDustOff/releases)**
 
-Choose one of the installers:
-- **DataDustOff_x.x.x_x64-setup.exe** (Recommended - NSIS installer)
+Choose this installer:
 - **DataDustOff_x.x.x_x64_en-US.msi** (MSI installer)
 
 Run the installer and follow the prompts. That's it!
