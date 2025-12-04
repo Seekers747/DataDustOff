@@ -1,8 +1,8 @@
 [package]
 name = "datadustoff"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "Smart file cleanup tool to find and remove untouched files"
+authors = ["Seekers747"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
