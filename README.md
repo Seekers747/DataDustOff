@@ -85,10 +85,6 @@ The built installers will be in `src-tauri/target/release/bundle/`
 
 Active development. New features and improvements coming soon!
 
-## Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
 ## License
 
 Created by Seekers747
