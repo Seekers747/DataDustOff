@@ -10,6 +10,7 @@ A smart desktop file cleanup tool that helps you find and remove files you haven
 - ❌ **Permanent Delete** - Remove files permanently when you're sure
 - 📊 **Statistics** - View total files, sizes, and average file age
 - 🔍 **Advanced Filters** - Search by name, filter by file type, size (1MB-1GB+), and age
+- 📑 **Sorting Options** - Sort files by name, size, modified date, or last accessed date (ascending/descending)
 - ✅ **Bulk Operations** - Select multiple files and trash/delete them all at once
 - 🎨 **Clean UI** - Modern, easy-to-use dark-themed interface
 
@@ -74,8 +75,13 @@ The built installers will be in `src-tauri/target/release/bundle/`
    - Filter by file type
    - Set minimum file size (great for finding large files!)
    - Filter by age (30 days, 6 months, 1 year, etc.)
-4. **Select files** individually or use "Select All Visible"
-5. **Choose action:**
+4. **Sort files** to find what you need:
+   - By size (largest/smallest first)
+   - By name (A-Z or Z-A)
+   - By modified date (latest/earliest)
+   - By access date (recent/oldest)
+5. **Select files** individually or use "Select All Visible"
+6. **Choose action:**
    - 🗑️ **Trash** - Move to Windows Recycle Bin (can restore later)
    - ❌ **Delete** - Permanently remove files
 
