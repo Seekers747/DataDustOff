@@ -34,7 +34,7 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
 
         <div className="p-4 border-t border-gray-800">
-          <p className="text-xs text-gray-500">Version 0.1.0</p>
+          <p className="text-xs text-gray-500">Version 0.2.0</p>
         </div>
       </aside>
 

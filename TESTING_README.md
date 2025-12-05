@@ -9,7 +9,7 @@ DataDustOff helps you find and clean up files you haven't touched in months/year
 ## Installation
 
 1. Download and extract the ZIP file
-2. Double-click `DataDustOff_0.1.0_x64_en-US.msi` to install
+2. Double-click `DataDustOff_0.2.0_x64_en-US.msi` to install
 3. Open DataDustOff from Start Menu
 
 ## How to Use
@@ -50,5 +50,5 @@ Please let me know:
 
 ---
 
-**Version:** 0.1.0 (MVP)
+**Version:** 0.2.0 (MVP)
 **Platform:** Windows 10/11 x64

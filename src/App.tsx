@@ -35,6 +35,7 @@ function App() {
   const [selectedExtension, setSelectedExtension] = useState<string>('all');
   const [minAge, setMinAge] = useState<number>(0);
   const [minSize, setMinSize] = useState<number>(0);
+  const [sortBy, setSortBy] = useState<string>('modified_desc');
   
   // Bulk selection state
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
@@ -294,11 +295,11 @@ function App() {
     return Array.from(extensions).filter(ext => ext !== '').sort();
   };
 
-  // Filter files based on search term, extension, age, and size
+  // Filter and sort files
   const getFilteredFiles = () => {
     if (!scanResult) return [];
     
-    return scanResult.files.filter(file => {
+    let filtered = scanResult.files.filter(file => {
       // Search term filter (case insensitive)
       const matchesSearch = searchTerm === '' || 
         file.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -315,6 +316,30 @@ function App() {
       const matchesSize = file.size >= minSize;
       
       return matchesSearch && matchesExtension && matchesAge && matchesSize;
+    });
+
+    // Apply sorting
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'size_desc': // Largest to smallest
+          return b.size - a.size;
+        case 'size_asc': // Smallest to largest
+          return a.size - b.size;
+        case 'modified_desc': // Latest to earliest (default)
+          return b.modified - a.modified;
+        case 'modified_asc': // Earliest to latest
+          return a.modified - b.modified;
+        case 'accessed_desc': // Recently accessed first
+          return b.accessed - a.accessed;
+        case 'accessed_asc': // Least recently accessed first
+          return a.accessed - b.accessed;
+        case 'name_asc': // A to Z
+          return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+        case 'name_desc': // Z to A
+          return b.name.toLowerCase().localeCompare(a.name.toLowerCase());
+        default:
+          return b.accessed - a.accessed;
+      }
     });
   };
 
@@ -469,18 +494,38 @@ function App() {
                     <option value="730">2 years</option>
                   </select>
                 </div>
+
+                {/* Sort Options */}
+                <div>
+                    <label className="block text-sm text-gray-400 mb-2">Sort by</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 transition"
+                    >
+                      <option value="modified_desc">📅 Latest Modified First</option>
+                      <option value="modified_asc">📅 Earliest Modified First</option>
+                      <option value="accessed_asc">⏰ Oldest Access First</option>
+                      <option value="accessed_desc">⏰ Recent Access First</option>
+                      <option value="size_desc">📊 Largest First</option>
+                      <option value="size_asc">📊 Smallest First</option>
+                      <option value="name_asc">🔤 Name (A-Z)</option>
+                      <option value="name_desc">🔤 Name (Z-A)</option>
+                    </select>
+                </div>
               </div>
 
               {/* Filter summary */}
               <div className="mt-3 text-sm text-gray-400">
                 Showing <span className="text-blue-400 font-bold">{filteredFiles.length}</span> of {scanResult.total_files} files
-                {(searchTerm || selectedExtension !== 'all' || minAge > 0 || minSize > 0) && (
+                {(searchTerm || selectedExtension !== 'all' || minAge > 0 || minSize > 0 || sortBy !== 'modified_desc') && (
                   <button
                     onClick={() => {
                       setSearchTerm('');
                       setSelectedExtension('all');
                       setMinAge(0);
                       setMinSize(0);
+                      setSortBy('modified_desc');
                     }}
                     className="ml-3 text-orange-400 hover:text-orange-300 underline"
                   >
@@ -544,7 +589,6 @@ function App() {
               ) : (
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">
                   {filteredFiles
-                    .sort((a, b) => a.accessed - b.accessed)
                     .slice(0, 50)
                     .map((file, index) => {
                       const daysOld = getDaysSinceAccess(file.accessed);

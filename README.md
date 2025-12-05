@@ -81,7 +81,7 @@ The built installers will be in `src-tauri/target/release/bundle/`
 
 ## Project Status
 
-**Version:** 0.1.0
+**Version:** 0.2.0
 
 Active development. New features and improvements coming soon!
 

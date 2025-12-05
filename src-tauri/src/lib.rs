@@ -1,6 +1,6 @@
 mod scanner;
 
-use scanner::{scan_directory, ScanResult, delete_file, move_file, move_to_trash};
+use scanner::{scan_directory, ScanResult, delete_file, move_file, move_to_trash, sort_by_largest};
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -9,7 +9,7 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 fn get_app_version() -> String {
-    "0.1.0".to_string()
+    "0.2.0".to_string()
 }
 
 #[tauri::command]
@@ -32,6 +32,12 @@ fn move_to_trash_cmd(path: String) -> Result<(), String> {
     move_to_trash(&path)
 }
 
+#[tauri::command]
+fn sort_files_by_largest(mut scan_result: ScanResult) -> ScanResult {
+    sort_by_largest(&mut scan_result.files);
+    scan_result
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -43,7 +49,8 @@ pub fn run() {
             scan_folder,
             delete_file_cmd,
             move_file_cmd,
-            move_to_trash_cmd
+            move_to_trash_cmd,
+            sort_files_by_largest
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

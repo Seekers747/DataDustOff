@@ -1,6 +1,6 @@
 [package]
 name = "datadustoff"
-version = "0.1.0"
+version = "0.2.0"
 description = "Smart file cleanup tool to find and remove untouched files"
 authors = ["Seekers747"]
 edition = "2021"

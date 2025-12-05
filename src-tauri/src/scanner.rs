@@ -198,3 +198,7 @@ pub fn move_to_trash(path: &str) -> Result<(), String> {
 
     Ok(())
 }
+
+pub fn sort_by_largest(files: &mut Vec<FileInfo>) {
+    files.sort_by(|a, b| b.size.cmp(&a.size));
+}
